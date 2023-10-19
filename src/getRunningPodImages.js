@@ -11,11 +11,11 @@ const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 // List of app=value labels. This is used to filter the pods we are checking inside the cluster.
 const appLabelValues = ['jsapp', 'nginx'];
 
-async function getPodImageVersionsAndTags() {
+async function getRunningPodImages() {
   try {
     // Fetch all pods from the Kubernetes cluster across all namespaces.
-    const podsResponse = await k8sApi.listPodForAllNamespaces();
-    const pods = podsResponse.body.items;
+    const res = await k8sApi.listPodForAllNamespaces();
+    const pods = res.body.items;
 
     // Loop through each pod to check and process the ones matching our label criteria.
     pods.forEach(pod => {
@@ -50,4 +50,4 @@ async function getPodImageVersionsAndTags() {
 }
 
 // Start
-getPodImageVersionsAndTags();
+getRunningPodImages();
