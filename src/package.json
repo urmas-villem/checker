@@ -1,7 +1,7 @@
 {
-  "name": "docker_web_app",
+  "name": "checker",
   "version": "1.0.0",
-  "description": "Node.js on Docker",
+  "description": "checker",
   "author": "Urmas-Villem.Sundja <Urmas.Villem.Sundja@gmail.com>",
   "main": "server.js",
   "scripts": {
