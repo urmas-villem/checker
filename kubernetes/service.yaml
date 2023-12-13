@@ -5,8 +5,8 @@ metadata:
 spec:
   selector:
     app: jsapp
-  type: ClusterIP
+  type: LoadBalancer
   ports:
   - name: http-port
-    port: 9191
-    targetPort: 9191
+    port: 80        # The port on which the service will be exposed externally
+    targetPort: 9191  # The port your application is running on inside the pod

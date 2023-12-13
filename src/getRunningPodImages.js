@@ -9,7 +9,7 @@ kc.loadFromDefault();
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
 // List of app=value labels. This is used to filter the pods we are checking inside the cluster.
-const appLabelValues = ['jsapp', 'nginx'];
+const appLabelValues = ['prometheus'];
 
 async function getRunningPodImages() {
   try {
