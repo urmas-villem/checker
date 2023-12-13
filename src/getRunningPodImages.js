@@ -1,76 +1,48 @@
-// Import Kubernetes client library.
 const k8s = require('@kubernetes/client-node');
-const { exec } = require('child_process');
 const util = require('util');
+const exec = util.promisify(require('child_process').exec);
 
-// Promisify exec for use with async/await.
-const execAsync = util.promisify(exec);
+const kubeConfig = new k8s.KubeConfig();
+kubeConfig.loadFromDefault();
+const coreV1Api = kubeConfig.makeApiClient(k8s.CoreV1Api);
 
-// Initialize the Kubernetes configuration object.
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
+const softwareCommands = {
+  'prometheus': `curl -s -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/prometheus/prometheus/releases/latest" | jq -r '.tag_name'`,
+  'alertmanager': `curl -s -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/prometheus/alertmanager/releases/latest" | jq -r '.tag_name'`,
+};
 
-// Create a Kubernetes API client for the CoreV1 API.
-const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
-
-// List of app=value labels. This is used to filter the pods we are checking inside the cluster.
-const appLabelValues = ['prometheus'];
-
-async function getLatestImageTagForSoftware(software) {
+async function fetchLatestImageTag(command) {
   try {
-    let command;
-    switch (software) {
-      case 'prometheus':
-        command = `curl -s -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/prometheus/prometheus/releases/latest" | jq -r '.tag_name'`;
-        break;
-      // Add more cases for other software as needed.
-    }
-
-    if (!command) return null;
-
-    const { stdout, stderr } = await execAsync(command);
+    const { stdout, stderr } = await exec(command);
     if (stderr) throw new Error(stderr);
     return stdout.trim();
   } catch (error) {
-    console.error('Error fetching latest image tag for', software, ':', error);
-    return null;
+    console.error('Error fetching latest tag:', error);
   }
 }
 
 async function getRunningPodImages() {
   try {
-    const res = await k8sApi.listPodForAllNamespaces();
-    const pods = res.body.items;
-
-    const containerObjects = [];
-
-    pods.forEach(pod => {
-      const { labels } = pod.metadata;
-      if (labels && labels.app && appLabelValues.includes(labels.app)) {
-        (pod.status.containerStatuses || []).forEach(containerStatus => {
-          const [imageName, imageTag] = containerStatus.image.split(':');
-          containerObjects.push({
-            containerName: containerStatus.name,
-            imageName,
-            imageTag
-          });
-        });
-      }
-    });
+    const res = await coreV1Api.listPodForAllNamespaces();
+    const containerObjects = res.body.items.flatMap(pod => 
+      pod.status.containerStatuses?.filter(status => softwareCommands[pod.metadata.labels?.app])
+        .map(status => ({
+          containerName: status.name,
+          imageName: status.image.split(':')[0],
+          imageUsedInCluster: status.image.split(':')[1],
+        })) || []
+    );    
 
     for (const containerObj of containerObjects) {
-      if (appLabelValues.includes(containerObj.containerName)) {
-        const newestImageTag = await getLatestImageTagForSoftware(containerObj.containerName);
-        if (newestImageTag) {
-          containerObj.newestImageTag = newestImageTag;
-        }
+      const command = softwareCommands[containerObj.containerName];
+      if (command) {
+        containerObj.newestImageAvailable = await fetchLatestImageTag(command);
       }
     }
 
     console.log(containerObjects);
-
   } catch (error) {
-    console.error('Error fetching pod details:', error);
+    console.error('Error:', error);
   }
 }
 
