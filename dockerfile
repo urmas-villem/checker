@@ -5,7 +5,7 @@ FROM node:18.18.2-alpine
 WORKDIR /work/
 
 COPY ./src/package.json /work/package.json
-RUN npm install
+RUN npm install && apk add --no-cache curl jq
 
 COPY ./src/ /work/
 

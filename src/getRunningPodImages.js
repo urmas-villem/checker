@@ -1,5 +1,10 @@
 // Import Kubernetes client library.
 const k8s = require('@kubernetes/client-node');
+const { exec } = require('child_process');
+const util = require('util');
+
+// Promisify exec for use with async/await.
+const execAsync = util.promisify(exec);
 
 // Initialize the Kubernetes configuration object.
 const kc = new k8s.KubeConfig();
@@ -11,43 +16,62 @@ const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 // List of app=value labels. This is used to filter the pods we are checking inside the cluster.
 const appLabelValues = ['prometheus'];
 
+async function getLatestImageTagForSoftware(software) {
+  try {
+    let command;
+    switch (software) {
+      case 'prometheus':
+        command = `curl -s -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/prometheus/prometheus/releases/latest" | jq -r '.tag_name'`;
+        break;
+      // Add more cases for other software as needed.
+    }
+
+    if (!command) return null;
+
+    const { stdout, stderr } = await execAsync(command);
+    if (stderr) throw new Error(stderr);
+    return stdout.trim();
+  } catch (error) {
+    console.error('Error fetching latest image tag for', software, ':', error);
+    return null;
+  }
+}
+
 async function getRunningPodImages() {
   try {
-    // Fetch all pods from the Kubernetes cluster across all namespaces.
     const res = await k8sApi.listPodForAllNamespaces();
     const pods = res.body.items;
 
-    // Loop through each pod to check and process the ones matching our label criteria.
+    const containerObjects = [];
+
     pods.forEach(pod => {
       const { labels } = pod.metadata;
-
-      // Check if the current pod's app label matches any of our desired labels.
       if (labels && labels.app && appLabelValues.includes(labels.app)) {
-
-        // Log pod information.
-        console.log(`Pod: ${pod.metadata.name}, Namespace: ${pod.metadata.namespace}`);
-        console.log('Container Image Versions and Tags:');
-        
-        // If the pod has containers, loop through each container to extract image details.
         (pod.status.containerStatuses || []).forEach(containerStatus => {
-          
-          // Split the container image into its name and tag.
           const [imageName, imageTag] = containerStatus.image.split(':');
-
-          // Log results.
-          console.log(`  Container: ${containerStatus.name}`);
-          console.log(`  Image Name: ${imageName}`);
-          console.log(`  Image Tag: ${imageTag}`);
-          console.log('---');
+          containerObjects.push({
+            containerName: containerStatus.name,
+            imageName,
+            imageTag
+          });
         });
       }
     });
 
+    for (const containerObj of containerObjects) {
+      if (appLabelValues.includes(containerObj.containerName)) {
+        const newestImageTag = await getLatestImageTagForSoftware(containerObj.containerName);
+        if (newestImageTag) {
+          containerObj.newestImageTag = newestImageTag;
+        }
+      }
+    }
+
+    console.log(containerObjects);
+
   } catch (error) {
-    // Log the error for troubleshooting.
     console.error('Error fetching pod details:', error);
   }
 }
 
-// Start
 getRunningPodImages();
