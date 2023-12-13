@@ -14,4 +14,4 @@ Edit deployment to use the new image
 
 #### Testing commands:
 ```kubectl run nginx --image=nginx --port=80```                    
-```kubectl run prometheus --image=prom/prometheus:v2.48.1 --port=9090```                    
+```kubectl run prometheus --image=prom/prometheus:v2.48.1 --port=9090 --labels="app=prometheus"```                    
