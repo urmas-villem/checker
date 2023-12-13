@@ -1,7 +1,6 @@
 # Checker
 
-Kontrollib mis imaged klastrisse paigaldatud on ja võrdleb neid kõige uuemate versioonidega. Vajadusel teavitab, et uuendust vaja.
-
+Checks images used by pods inside cluster and compares them with the newest versions. Notifies if necessary
 
 #### Dockerhub link:
 https://hub.docker.com/r/huxlee/jsapp/tags
