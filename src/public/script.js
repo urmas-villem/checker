@@ -8,7 +8,7 @@ async function fetchAndDisplayPodImages() {
         await new Promise(resolve => setTimeout(resolve, 500));
 
         const container = document.getElementById('podImagesContainer');
-        container.innerHTML = '<h2>Pod Images</h2>';
+        container.innerHTML = '<h2>Images:</h2>';
 
         // Create a table and add header row
         let table = '<table border="1"><tr>';
