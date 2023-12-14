@@ -3,7 +3,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { getRunningPodImages } = require('./getRunningPodImages'); // Import the function
+const { getRunningPodImages } = require('./getRunningPodImages');
 
 const PORT = 9191;
 const HOST = '0.0.0.0';
