@@ -47,4 +47,4 @@ async function getRunningPodImages() {
   }
 }
 
-module.exports.getRunningPodImages = getRunningPodImages; // Export the function
+module.exports.getRunningPodImages = getRunningPodImages;
