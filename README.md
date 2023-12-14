@@ -54,3 +54,5 @@ The table itself looks something like this:
 |----------------|-------------------|----------------------|------------------------|
 | alertmanager   | prom/alertmanager | v0.25.0              | v0.26.0                |
 | prometheus     | prom/prometheus   | v2.48.1              | v2.48.1                | 
+
+Also added some minor styling to the page                                        
