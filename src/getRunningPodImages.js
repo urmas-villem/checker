@@ -40,10 +40,11 @@ async function getRunningPodImages() {
       }
     }
 
-    console.log(containerObjects);
+    return containerObjects;
   } catch (error) {
     console.error('Error:', error);
+    return [];
   }
 }
 
-getRunningPodImages();
+module.exports.getRunningPodImages = getRunningPodImages; // Export the function
