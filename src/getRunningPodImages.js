@@ -14,10 +14,12 @@ const softwareCommands = {
 async function fetchLatestImageTag(command) {
   try {
     const { stdout, stderr } = await exec(command);
-    if (stderr) throw new Error(stderr);
+    if (stderr) throw new Error(`Command Error: ${stderr}`);
+    if (!stdout) throw new Error('No output received from command.');
     return stdout.trim();
   } catch (error) {
-    console.error('Error fetching latest tag:', error);
+    console.error('Error fetching latest tag:', error.message);
+    return 'fetch-error';
   }
 }
 
@@ -40,6 +42,7 @@ async function getRunningPodImages() {
       }
     }
 
+    console.log(containerObjects)
     return containerObjects;
   } catch (error) {
     console.error('Error:', error);

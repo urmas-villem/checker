@@ -20,6 +20,7 @@ app.get('/console', function(req, res){
 app.get('/pod-images', async (req, res) => {
     try {
         const data = await getRunningPodImages();
+        console.log(data);
         res.json(data);
     } catch (error) {
         console.error('Error fetching pod images:', error);
