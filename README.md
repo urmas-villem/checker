@@ -59,4 +59,6 @@ Also added some minor styling to the page
 
 # 15.12.23
 fixed https://github.com/urmas-villem/checker/issues/2                 
-Also added an indicator to the frontend if the currently used image and the newest image available have a mismatch                         
+Added an indicator to the frontend if the currently used image and the newest image available have a mismatch                         
+Added notes.json where notes can be put for every software we are checking                                  
+Added ```fetchEOLDate()``` function for the future if there are some softwares that have specific EOL dates this function will find it and display it in the EOL Date column for the user                                            
