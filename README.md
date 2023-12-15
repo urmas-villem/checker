@@ -56,3 +56,7 @@ The table itself looks something like this:
 | prometheus     | prom/prometheus   | v2.48.1              | v2.48.1                | 
 
 Also added some minor styling to the page                                        
+
+# 15.12.23
+fixed https://github.com/urmas-villem/checker/issues/2                 
+Also added an indicator to the frontend if the currently used image and the newest image available have a mismatch                         
