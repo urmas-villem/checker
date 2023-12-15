@@ -35,24 +35,6 @@ This script works by looking in the ```software.json``` file you specify the nam
     }
 ]
 ```                                                                 
-The ```fetchLatestImageTag``` function finds the latest image versions using curl                              
-The ```getRunningPodImages``` finds the software in the cluster by the label (the pods need a label like app: prometheus or app: alertmanager) then it creates an object for each of the software where you can see output like this:                                     
-```
-[
-  {
-    containerName: 'alertmanager',
-    imageName: 'prom/alertmanager',
-    imageUsedInCluster: 'v0.25.0',
-    newestImageAvailable: 'v0.26.0'
-  },
-  {
-    containerName: 'prometheus',
-    imageName: 'prom/prometheus',
-    imageUsedInCluster: 'v2.48.1',
-    newestImageAvailable: 'v2.48.1'
-  }
-]
-```
 
 # 14.12.23
 I wanted the output of the pod to be shown to the user in UI so i added a table version of that can be accessed by ```localhost:80```                           
