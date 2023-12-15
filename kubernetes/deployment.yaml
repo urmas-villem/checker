@@ -14,8 +14,9 @@ spec:
       labels:
         app: jsapp
     spec:
+      serviceAccountName: checker
       containers:
       - name: jsapp
-        image: huxlee/jsapp:v1.5.3
+        image: huxlee/jsapp:v1.7.9
         ports:
         - containerPort: 9191
