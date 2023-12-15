@@ -29,4 +29,4 @@ app.get('/pod-images', async (req, res) => {
 });
 
 app.listen(PORT, HOST);
-console.log(`Running version 3 on http://${HOST}:${PORT}`);
+console.log(`http://${HOST}:${PORT}`);
