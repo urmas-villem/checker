@@ -61,4 +61,20 @@ Also added some minor styling to the page
 fixed https://github.com/urmas-villem/checker/issues/2                 
 Added an indicator to the frontend if the currently used image and the newest image available have a mismatch                         
 Added notes.json where notes can be put for every software we are checking                                  
-Added ```fetchEOLDate()``` function for the future if there are some softwares that have specific EOL dates this function will find it and display it in the EOL Date column for the user                                            
+Added ```fetchEOLDate()``` function for the future if there are some softwares that have specific EOL dates this function will find it and display it in the EOL Date column for the user      
+#### Reworked:
+The curl command used to be in the getRunningPodImages.js file but since I added a notes file, this did not seem to make sense anymore to have the notes about the software in one place and the curl commands about the same software in another place so I consolidated them both into a software.json file that looks like this:
+```
+[
+    {
+      "name": "prometheus",
+      "command": "curl -s \"https://api.github.com/repos/prometheus/prometheus/releases/latest\" | jq -r '.tag_name'",
+      "note": "Prometheus has a very unclear definition of 'end of life': <i>Every 6 weeks, a new minor release cycle begins. After 6 weeks, minor releases generally no longer receive bugfixes.</i> Keep prometheus updated to the latest version. Approximate 'end of life' can be viewed here: <a href='https://endoflife.date/prometheus' target='_blank'>endoflife.date</a>."
+    },
+    {
+      "name": "alertmanager",
+      "command": "curl -s \"https://api.github.com/repos/prometheus/alertmanager/releases/latest\" | jq -r '.tag_name'",
+      "note": "Alertmanager versions do not have a specific 'end of life'"
+    }
+]
+```
