@@ -12,18 +12,18 @@ async function fetchAndDisplayPodImages() {
 
         // Create a table and add header row
         let table = '<table border="1"><tr>';
-        table += '<th>Container Name</th>';
-        table += '<th>Image Name</th>';
-        table += '<th>Image Used In Cluster</th>';
-        table += '<th>Newest Image Available</th>';
+        table += '<th>Container name</th>';
+        table += '<th>Image repository</th>';
+        table += '<th>Image version used in cluster</th>';
+        table += '<th>Newest image available</th>';
         table += '</tr>';
 
         // Add data rows
         data.forEach(item => {
             table += `<tr>
                         <td>${item.containerName}</td>
-                        <td>${item.imageName}</td>
-                        <td>${item.imageUsedInCluster}</td>
+                        <td>${item.imageRepository}</td>
+                        <td>${item.imageVersionUsedInCluster}</td>
                         <td>${item.newestImageAvailable}</td>
                       </tr>`;
         });

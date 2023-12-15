@@ -33,8 +33,8 @@ async function getRunningPodImages() {
       if (command && pod.status.containerStatuses) {
         return pod.status.containerStatuses.map(status => ({
           containerName: status.name,
-          imageName: status.image.split(':')[0],
-          imageUsedInCluster: status.image.split(':')[1],
+          imageRepository: status.image.split(':')[0],
+          imageVersionUsedInCluster: status.image.split(':')[1],
           appName: appName,
           command: command
         }));
