@@ -26,19 +26,25 @@ async function fetchLatestImageTag(command) {
 async function getRunningPodImages() {
   try {
     const res = await coreV1Api.listPodForAllNamespaces();
-    const containerObjects = res.body.items.flatMap(pod => 
-      pod.status.containerStatuses?.filter(status => softwareCommands[pod.metadata.labels?.app])
-        .map(status => ({
+    const containerObjects = res.body.items.flatMap(pod => {
+      const appName = pod.metadata.labels?.app;
+      const command = softwareCommands[appName];
+
+      if (command && pod.status.containerStatuses) {
+        return pod.status.containerStatuses.map(status => ({
           containerName: status.name,
           imageName: status.image.split(':')[0],
           imageUsedInCluster: status.image.split(':')[1],
-        })) || []
-    );    
+          appName: appName,
+          command: command
+        }));
+      }
+      return [];
+    });
 
     for (const containerObj of containerObjects) {
-      const command = softwareCommands[containerObj.containerName];
-      if (command) {
-        containerObj.newestImageAvailable = await fetchLatestImageTag(command);
+      if (containerObj.command) {
+        containerObj.newestImageAvailable = await fetchLatestImageTag(containerObj.command);
       }
     }
 
