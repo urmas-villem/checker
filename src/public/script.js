@@ -20,10 +20,13 @@ async function fetchAndDisplayPodImages() {
 
         // Add data rows
         data.forEach(item => {
+            const versionMismatch = item.imageVersionUsedInCluster !== item.newestImageAvailable;
+            const versionCellClass = versionMismatch ? 'version-mismatch' : '';
+        
             table += `<tr>
                         <td>${item.containerName}</td>
                         <td>${item.imageRepository}</td>
-                        <td>${item.imageVersionUsedInCluster}</td>
+                        <td class="${versionCellClass}">${item.imageVersionUsedInCluster}</td>
                         <td>${item.newestImageAvailable}</td>
                       </tr>`;
         });

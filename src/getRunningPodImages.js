@@ -12,14 +12,17 @@ const softwareCommands = {
 };
 
 async function fetchLatestImageTag(command) {
+  const networkErrorMessage = 'Network error occurred with getting latest version, try again in a few minutes';
   try {
     const { stdout, stderr } = await exec(command);
-    if (stderr) throw new Error(`Command Error: ${stderr}`);
-    if (!stdout) throw new Error('No output received from command.');
+    if (stderr || !stdout || stdout.trim() === 'null') {
+      console.error(`Error in command execution: ${stderr}`);
+      return networkErrorMessage;
+    }
     return stdout.trim();
   } catch (error) {
     console.error('Error fetching latest tag:', error.message);
-    return 'fetch-error';
+    return networkErrorMessage;
   }
 }
 
