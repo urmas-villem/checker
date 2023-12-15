@@ -20,13 +20,21 @@ Edit deployment to use the new image
 ## Current status of the code:
 
 I have a script called getRunningPodImages.js (rename it later).                                      
-This script works by taking in a constant where you specify the name of the software you want to check inside the cluster and then the corresponding curl command which identifies the latest version.                                
+This script works by looking in the ```software.json``` file you specify the name of the software you want to check inside the cluster and then the corresponding curl command which identifies the latest version.                                
 ```
-const softwareCommands = {
-  'prometheus': `curl -s -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/prometheus/prometheus/releases/latest" | jq -r '.tag_name'`,
-  'alertmanager': `curl -s -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/prometheus/alertmanager/releases/latest" | jq -r '.tag_name'`,
-};
-```                                                                  
+[
+    {
+      "name": "prometheus",
+      "command": "curl -s \"https://api.github.com/repos/prometheus/prometheus/releases/latest\" | jq -r '.tag_name'",
+      "note": "Prometheus has a very unclear definition of 'end of life': <i>Every 6 weeks, a new minor release cycle begins. After 6 weeks, minor releases generally no longer receive bugfixes.</i> Keep prometheus updated to the latest version. Approximate 'end of life' can be viewed here: <a href='https://endoflife.date/prometheus' target='_blank'>endoflife.date</a>."
+    },
+    {
+      "name": "alertmanager",
+      "command": "curl -s \"https://api.github.com/repos/prometheus/alertmanager/releases/latest\" | jq -r '.tag_name'",
+      "note": "Alertmanager versions do not have a specific 'end of life'"
+    }
+]
+```                                                                 
 The ```fetchLatestImageTag``` function finds the latest image versions using curl                              
 The ```getRunningPodImages``` finds the software in the cluster by the label (the pods need a label like app: prometheus or app: alertmanager) then it creates an object for each of the software where you can see output like this:                                     
 ```
@@ -63,7 +71,7 @@ Added an indicator to the frontend if the currently used image and the newest im
 Added notes.json where notes can be put for every software we are checking                                  
 Added ```fetchEOLDate()``` function for the future if there are some softwares that have specific EOL dates this function will find it and display it in the EOL Date column for the user      
 #### Reworked:
-The curl command used to be in the getRunningPodImages.js file but since I added a notes file, this did not seem to make sense anymore to have the notes about the software in one place and the curl commands about the same software in another place so I consolidated them both into a software.json file that looks like this:
+The curl command used to be in the getRunningPodImages.js file but since I added a notes file, this did not seem to make sense anymore to have the notes about the software in one place and the curl commands about the same software in another place so I consolidated them both into a ```software.json``` file that looks like this:
 ```
 [
     {
@@ -78,3 +86,10 @@ The curl command used to be in the getRunningPodImages.js file but since I added
     }
 ]
 ```
+Instead of the old constant:
+```
+const softwareCommands = {
+  'prometheus': `curl -s -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/prometheus/prometheus/releases/latest" | jq -r '.tag_name'`,
+  'alertmanager': `curl -s -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/prometheus/alertmanager/releases/latest" | jq -r '.tag_name'`,
+};
+``` 
