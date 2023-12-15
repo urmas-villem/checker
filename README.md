@@ -50,7 +50,7 @@ The ```getRunningPodImages``` finds the software in the cluster by the label (th
 I wanted the output of the pod to be shown to the user in UI so i added a table version of that can be accessed by ```localhost:80```                           
 The table itself looks something like this:              
 
-| Container Name | Image Name        | Image Used In Cluste | Newest Image Available |
+| Container Name | Image Name        | Image Used In Cluster | Newest Image Available |
 |----------------|-------------------|----------------------|------------------------|
 | alertmanager   | prom/alertmanager | v0.25.0              | v0.26.0                |
 | prometheus     | prom/prometheus   | v2.48.1              | v2.48.1                | 
