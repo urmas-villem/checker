@@ -16,6 +16,8 @@ async function fetchAndDisplayPodImages() {
         table += '<th>Image repository</th>';
         table += '<th>Image version used in cluster</th>';
         table += '<th>Newest image available</th>';
+        table += '<th>EOL Date (currently dummy date)</th>';
+        table += '<th>Notes</th>';
         table += '</tr>';
 
         // Add data rows
@@ -28,6 +30,8 @@ async function fetchAndDisplayPodImages() {
                         <td>${item.imageRepository}</td>
                         <td class="${versionCellClass}">${item.imageVersionUsedInCluster}</td>
                         <td>${item.newestImageAvailable}</td>
+                        <td class="no-wrap">${item.eolDate}</td>
+                        <td>${item.note}</td>
                       </tr>`;
         });
 

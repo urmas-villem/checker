@@ -1,6 +1,7 @@
 const k8s = require('@kubernetes/client-node');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const notes = require('./notes.json');
 
 const kubeConfig = new k8s.KubeConfig();
 kubeConfig.loadFromDefault();
@@ -26,6 +27,11 @@ async function fetchLatestImageTag(command) {
   }
 }
 
+async function fetchEOLDate(appName, version) {
+  console.log(`Fetching EOL date for ${appName} version ${version}`);
+  return '2023-12-31'; // Dummy date
+}
+
 async function getRunningPodImages() {
   try {
     const res = await coreV1Api.listPodForAllNamespaces();
@@ -39,7 +45,8 @@ async function getRunningPodImages() {
           imageRepository: status.image.split(':')[0],
           imageVersionUsedInCluster: status.image.split(':')[1],
           appName: appName,
-          command: command
+          command: command,
+          note: notes[appName] || ''
         }));
       }
       return [];
@@ -48,10 +55,11 @@ async function getRunningPodImages() {
     for (const containerObj of containerObjects) {
       if (containerObj.command) {
         containerObj.newestImageAvailable = await fetchLatestImageTag(containerObj.command);
+        containerObj.eolDate = await fetchEOLDate(containerObj.appName, containerObj.imageVersionUsedInCluster);
       }
     }
 
-    console.log(containerObjects)
+    console.log(containerObjects);
     return containerObjects;
   } catch (error) {
     console.error('Error:', error);
