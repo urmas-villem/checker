@@ -3,9 +3,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: checker-sa
 subjects:
-- kind: ServiceAccount
-  name: checker
-  namespace: default
+  - kind: ServiceAccount
+    name: checker
+    namespace: default
 roleRef:
   kind: ClusterRole
   name: checker-sa

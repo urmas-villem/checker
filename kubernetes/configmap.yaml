@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: software-config
+  namespace: default
+data:
+  prometheus: |
+    {
+      "command": "curl -s \"https://api.github.com/repos/prometheus/prometheus/releases/latest\" | jq -r '.tag_name'",
+      "note": "Prometheus has a very unclear definition of 'end of life': <i>Every 6 weeks, a new minor release cycle begins. After 6 weeks, minor releases generally no longer receive bugfixes.</i> Keep prometheus updated to the latest version. Approximate 'end of life' can be viewed here: <a href='https://endoflife.date/prometheus' target='_blank'>endoflife.date</a>."
+    }
+  logstash-oss: |
+    {
+      "command": "curl -s https://www.docker.elastic.co/r/logstash/logstash-oss | grep -Eo 'logstash-oss:[0-9]+\\.[0-9]+\\.[0-9]+' | sed 's/logstash-oss://' | sort -Vr | head -n 1",
+      "note": ""
+    }
+  alertmanager: |
+    {
+      "command": "curl -s \"https://api.github.com/repos/prometheus/alertmanager/releases/latest\" | jq -r '.tag_name'",
+      "note": "Alertmanager versions do not have a specific 'end of life'"
+    }

@@ -20,3 +20,6 @@ spec:
         image: huxlee/jsapp:v1.7.9
         ports:
         - containerPort: 9191
+        envFrom:
+        - configMapRef:
+            name: software-config

@@ -1,11 +1,21 @@
 const k8s = require('@kubernetes/client-node');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
-const softwares = require('./software.json');
 
 const kubeConfig = new k8s.KubeConfig();
 kubeConfig.loadFromDefault();
 const coreV1Api = kubeConfig.makeApiClient(k8s.CoreV1Api);
+
+async function fetchSoftwareConfig() {
+  try {
+    const configMap = await coreV1Api.readNamespacedConfigMap('software-config', 'default');
+    const softwareConfig = configMap.body.data;
+    return Object.entries(softwareConfig).map(([key, value]) => ({ name: key, ...JSON.parse(value) }));
+  } catch (error) {
+    console.error('Error fetching software config:', error);
+    throw error;
+  }
+}
 
 async function fetchLatestImageTag(command) {
   const networkErrorMessage = 'Network error occurred with getting latest version, try again in a few minutes';
@@ -29,6 +39,7 @@ async function fetchEOLDate(appName, version) {
 
 async function getRunningPodImages() {
   try {
+    const softwares = await fetchSoftwareConfig();
     const res = await coreV1Api.listPodForAllNamespaces();
     const containerObjects = res.body.items.flatMap(pod => {
       const appName = pod.metadata.labels?.app;

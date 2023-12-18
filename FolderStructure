@@ -3,6 +3,8 @@
     ├── src/
     │   ├── getRunningPodImages.js
     │   └── server.js
-    └── public/
-        ├── index.html
-        └── script.js
+    ├── public/
+    │   ├──  index.html
+    │   └── script.js
+    └── kubernetes/
+        └── configmap.yaml
