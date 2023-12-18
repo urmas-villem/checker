@@ -1,13 +1,13 @@
 # Build Stage
 FROM node:18.18.2-alpine as builder
 WORKDIR /work/
-COPY ./src/package*.json /work/
-RUN npm install --production  # Only install production dependencies
-COPY ./src/ /work/
+COPY ./src/package*.json ./
+RUN npm install --production
+COPY ./src/ .
 
 # Final Stage
 FROM node:18.18.2-alpine
 WORKDIR /app
-COPY --from=builder /work/ /app/
+COPY --from=builder /work/ .
 RUN apk add --no-cache curl jq
 CMD ["node", "server.js"]
