@@ -32,9 +32,38 @@ async function fetchLatestImageTag(command) {
   }
 }
 
-async function fetchEOLDate(appName, version) {
+async function fetchEOLDate(appName, version, eolUrl) {
   console.log(`Fetching EOL date for ${appName} version ${version}`);
-  return '2023-12-31'; // Dummy date
+
+  if (!eolUrl) {
+    return 'EOL URL not provided';
+  }
+
+  try {
+    const { stdout, stderr } = await exec(`curl -s "${eolUrl}"`);
+    if (stderr) {
+      console.error('Error fetching EOL data:', stderr);
+      return 'Error fetching data';
+    }
+
+    const eolData = JSON.parse(stdout);
+
+    // Extract major and minor version numbers
+    const versionParts = version.match(/^v?(\d+)\.(\d+)/);
+    if (!versionParts) {
+      console.error('Invalid version format');
+      return 'Unknown';
+    }
+    const major = versionParts[1];
+    const minor = versionParts[2];
+
+    // Find the matching EOL entry
+    const eolEntry = eolData.find(entry => entry.cycle === `${major}.${minor}`);
+    return eolEntry ? eolEntry.eol : 'Not found';
+  } catch (error) {
+    console.error('Error executing curl:', error);
+    return 'Error executing curl';
+  }
 }
 
 async function getRunningPodImages() {
@@ -61,7 +90,15 @@ async function getRunningPodImages() {
     for (const containerObj of containerObjects) {
       if (containerObj.command) {
         containerObj.newestImageAvailable = await fetchLatestImageTag(containerObj.command);
-        containerObj.eolDate = await fetchEOLDate(containerObj.appName, containerObj.imageVersionUsedInCluster);
+      }
+    
+      // Find the corresponding software configuration
+      const softwareConfig = softwares.find(s => s.name === containerObj.appName);
+    
+      if (softwareConfig && softwareConfig.eolUrl) {
+        containerObj.eolDate = await fetchEOLDate(containerObj.appName, containerObj.imageVersionUsedInCluster, softwareConfig.eolUrl);
+      } else {
+        containerObj.eolDate = 'EOL information not available';
       }
     }
 

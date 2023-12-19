@@ -15,8 +15,8 @@ async function fetchAndDisplayPodImages() {
         table += '<th>Container name</th>';
         table += '<th>Image repository</th>';
         table += '<th>Image version used in cluster</th>';
+        table += '<th>EOL of used version</th>';
         table += '<th>Newest image available</th>';
-        table += '<th>EOL Date (currently dummy date)</th>';
         table += '<th>Notes</th>';
         table += '</tr>';
 
@@ -24,13 +24,24 @@ async function fetchAndDisplayPodImages() {
         data.forEach(item => {
             const versionMismatch = item.imageVersionUsedInCluster !== item.newestImageAvailable;
             const versionCellClass = versionMismatch ? 'version-mismatch' : '';
+            const eolDatePassed = isDatePassed(item.eolDate);
+            let eolDateClass = '';
+        
+            if (eolDatePassed === true) {
+                eolDateClass = 'date-passed';
+            } else if (eolDatePassed === false) {
+                eolDateClass = 'date-valid';
+            }
+        
+            const formattedEolDate = formatDate(item.eolDate);
+            const timeDiffMessage = getTimeDifferenceMessage(item.eolDate);
         
             table += `<tr>
                         <td>${item.containerName}</td>
                         <td>${item.imageRepository}</td>
                         <td class="${versionCellClass}">${item.imageVersionUsedInCluster}</td>
+                        <td class="${eolDateClass}">${formattedEolDate} ${timeDiffMessage}</td>
                         <td>${item.newestImageAvailable}</td>
-                        <td class="no-wrap">${item.eolDate}</td>
                         <td>${item.note}</td>
                       </tr>`;
         });
@@ -42,6 +53,53 @@ async function fetchAndDisplayPodImages() {
     } catch (error) {
         console.error('Error fetching pod images:', error);
         document.getElementById('loadingMessage').innerText = 'Failed to load pod images.';
+    }
+}
+
+function formatDate(dateString) {
+    if (!dateString || isNaN(Date.parse(dateString))) {
+        return dateString;
+    }
+
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+
+    return `${day}. ${month} ${year}`;
+}
+
+function isDatePassed(eolDate) {
+    if (!eolDate || isNaN(Date.parse(eolDate))) {
+        return null;
+    }
+
+    const today = new Date();
+    const eol = new Date(eolDate);
+    return today > eol;
+}
+function getTimeDifferenceMessage(eolDate) {
+    if (!eolDate || isNaN(Date.parse(eolDate))) {
+        return '';
+    }
+
+    const today = new Date();
+    const eol = new Date(eolDate);
+
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const eolStart = new Date(eol.getFullYear(), eol.getMonth(), eol.getDate());
+
+    const timeDifference = eolStart - todayStart;
+
+    const days = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+
+    if (timeDifference >= 0) {
+        // EOL Date is in the future
+        return `(Ends in ${days} day${days !== 1 ? 's' : ''})`;
+    } else {
+        // EOL Date has passed
+        return `(Ended ${Math.abs(days)} day${Math.abs(days) !== 1 ? 's' : ''} ago)`;
     }
 }
 

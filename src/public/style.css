@@ -49,6 +49,14 @@ tr:hover {
     color: red;
 }
 
+.date-passed {
+    color: red;
+}
+
+.date-valid {
+    color: green;
+}
+
 .no-wrap {
     white-space: nowrap;
 }
