@@ -91,8 +91,6 @@ async function getRunningPodImages() {
       if (containerObj.command) {
         containerObj.newestImageAvailable = await fetchLatestImageTag(containerObj.command);
       }
-    
-      // Find the corresponding software configuration
       const softwareConfig = softwares.find(s => s.name === containerObj.appName);
     
       if (softwareConfig && softwareConfig.eolUrl) {
