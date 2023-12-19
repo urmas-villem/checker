@@ -1,37 +1,23 @@
-// polling.js
 import { fetchAndDisplayPodImages } from './script.js';
 
-const polling = (() => {
-    let countdownInterval;
+async function manualPoll() {
+    const pollButton = document.getElementById('pollButton');
+    pollButton.textContent = 'Updating...';
+    pollButton.disabled = true;
 
-    async function manualPoll() {
-        await fetchAndDisplayPodImages(false);
-        startCountdownTimer(Date.now());
+    try {
+        const response = await fetch('/trigger-update', { method: 'POST' });
+        if (!response.ok) {
+            throw new Error('Failed to update cache');
+        }
+        console.log('Cache updated successfully');
+        await fetchAndDisplayPodImages();
+    } catch (error) {
+        console.error('Error:', error);
+    } finally {
+        pollButton.textContent = 'Poll Now';
+        pollButton.disabled = false;
     }
+}
 
-    function startCountdownTimer(lastUpdated) {
-        clearInterval(countdownInterval);
-
-        countdownInterval = setInterval(() => {
-            const currentTime = Date.now();
-            const timeElapsed = currentTime - lastUpdated;
-            const timeRemaining = 300000 - timeElapsed;
-            if (timeRemaining <= 0) {
-                clearInterval(countdownInterval);
-                document.getElementById('nextPoll').innerText = 'Polling now...';
-                fetchAndDisplayPodImages();
-            } else {
-                const minutes = Math.floor(timeRemaining / 60000);
-                const seconds = Math.floor((timeRemaining % 60000) / 1000);
-                document.getElementById('nextPoll').innerText = `Next poll in: ${minutes}m ${seconds}s`;
-            }
-        }, 1000);
-    }
-
-    return {
-        manualPoll,
-        startCountdownTimer
-    };
-})();
-
-export { polling };
+document.getElementById('pollButton').addEventListener('click', manualPoll);

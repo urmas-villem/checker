@@ -1,3 +1,5 @@
+import { formatDate, isDatePassed, getTimeDifferenceMessage } from './utility.js';
+
 export async function fetchAndDisplayPodImages(resetTimer = true) {
     document.getElementById('loadingMessage').style.display = 'block';
 
@@ -24,16 +26,16 @@ export async function fetchAndDisplayPodImages(resetTimer = true) {
             const versionCellClass = versionMismatch ? 'version-mismatch' : '';
             const eolDatePassed = isDatePassed(item.eolDate);
             let eolDateClass = '';
-        
+
             if (eolDatePassed === true) {
                 eolDateClass = 'date-passed';
             } else if (eolDatePassed === false) {
                 eolDateClass = 'date-valid';
             }
-        
+
             const formattedEolDate = formatDate(item.eolDate);
             const timeDiffMessage = getTimeDifferenceMessage(item.eolDate);
-        
+
             table += `<tr>
                         <td>${item.containerName}</td>
                         <td>${item.imageRepository}</td>
@@ -50,63 +52,13 @@ export async function fetchAndDisplayPodImages(resetTimer = true) {
         document.getElementById('loadingMessage').style.display = 'none';
 
         const lastUpdatedDate = new Date(lastUpdated);
-        document.getElementById('lastUpdated').innerText = `Last Updated: ${lastUpdatedDate.toLocaleString()}`;
+        document.getElementById('lastUpdated').innerText = `Last Updated: ${lastUpdatedDate.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
 
-        if (resetTimer) {
-            import('./polling.js').then(module => {
-                module.polling.startCountdownTimer(lastUpdated);
-            });
-        }
     } catch (error) {
         console.error('Error fetching pod images:', error);
         document.getElementById('loadingMessage').innerText = 'Failed to load pod images.';
     }
 }
 
-function formatDate(dateString) {
-    if (!dateString || isNaN(Date.parse(dateString))) {
-        return dateString;
-    }
-
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const month = monthNames[date.getMonth()];
-    const year = date.getFullYear();
-
-    return `${day}. ${month} ${year}`;
-}
-
-function isDatePassed(eolDate) {
-    if (!eolDate || isNaN(Date.parse(eolDate))) {
-        return null;
-    }
-
-    const today = new Date();
-    const eol = new Date(eolDate);
-    return today > eol;
-}
-
-function getTimeDifferenceMessage(eolDate) {
-    if (!eolDate || isNaN(Date.parse(eolDate))) {
-        return '';
-    }
-
-    const today = new Date();
-    const eol = new Date(eolDate);
-
-    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const eolStart = new Date(eol.getFullYear(), eol.getMonth(), eol.getDate());
-
-    const timeDifference = eolStart - todayStart;
-
-    const days = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
-
-    if (timeDifference >= 0) {
-        return `(Ends in ${days} day${days !== 1 ? 's' : ''})`;
-    } else {
-        return `(Ended ${Math.abs(days)} day${Math.abs(days) !== 1 ? 's' : ''} ago)`;
-    }
-}
-
+// Initial fetch and display
 fetchAndDisplayPodImages();

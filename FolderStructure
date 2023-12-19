@@ -5,6 +5,8 @@
     │   └── server.js
     ├── public/
     │   ├──  index.html
-    │   └── script.js
+    │   ├──  script.js
+    │   ├──  polling.js
+    │   └──  utility.js
     └── kubernetes/
         └── configmap.yaml

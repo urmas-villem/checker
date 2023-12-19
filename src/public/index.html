@@ -15,26 +15,16 @@
         <h1>Checker</h1>
     </div>
     <p>Checks images used by pods inside cluster and compares them with the newest versions. Notifies if necessary</p>
+    <p>Software gets checked every 5 minutes or when pressing the <i style="text-decoration: underline;">update now</i> button below</p>
     <p>EOL (end of life) dates provided by <a href="https://endoflife.date/" target="_blank">endoflife.date</a></p>
 
     <div id="loadingMessage">Loading pod images...</div>
 
     <div id="podImagesContainer"></div>
 
-    <div id="lastUpdated"></div>
+    <div id="lastUpdated" class="last-updated"></div>
     <div id="nextPoll"></div>
     <button id="pollButton">Poll Now</button>
 
-    <script>
-        document.getElementById('reloadButton').addEventListener('click', function() {
-            location.reload();
-        });
-
-        document.getElementById('pollButton').addEventListener('click', function() {
-            import('./polling.js').then(module => {
-                module.polling.manualPoll();
-            });
-        });
-    </script>
 </body>
 </html>
