@@ -13,7 +13,7 @@ data:
   logstash-oss: |
     {
       "command": "curl -s https://www.docker.elastic.co/r/logstash/logstash-oss | grep -Eo 'logstash-oss:[0-9]+\\.[0-9]+\\.[0-9]+' | sed 's/logstash-oss://' | sort -Vr | head -n 1",
-      "eolUrl": "",
+      "eolUrl": "https://endoflife.date/api/logstash.json",
       "note": ""
     }
   alertmanager: |

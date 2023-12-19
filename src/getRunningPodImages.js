@@ -48,18 +48,28 @@ async function fetchEOLDate(appName, version, eolUrl) {
 
     const eolData = JSON.parse(stdout);
 
+    // Function to check the version format in EOL data
+    const isMajorMinorFormat = (eolData) => {
+      return eolData.some(entry => entry.cycle && entry.cycle.includes('.'));
+    };
+
+    // Determine the format of the versioning in the EOL data
+    const versionFormatIsMajorMinor = isMajorMinorFormat(eolData);
+
     // Extract major and minor version numbers
-    const versionParts = version.match(/^v?(\d+)\.(\d+)/);
-    if (!versionParts) {
-      console.error('Invalid version format');
-      return 'Unknown';
-    }
+    const versionParts = version.match(/^v?(\d+)(?:\.(\d+))?/);
     const major = versionParts[1];
     const minor = versionParts[2];
 
-    // Find the matching EOL entry
-    const eolEntry = eolData.find(entry => entry.cycle === `${major}.${minor}`);
-    return eolEntry ? eolEntry.eol : 'Not found';
+    // Find the matching EOL entry based on the versioning format
+    let eolEntry;
+    if (versionFormatIsMajorMinor) {
+      eolEntry = eolData.find(entry => entry.cycle === `${major}.${minor || '0'}`);
+    } else {
+      eolEntry = eolData.find(entry => entry.cycle === major);
+    }
+
+    return eolEntry && eolEntry.eol ? eolEntry.eol : 'Not found';
   } catch (error) {
     console.error('Error executing curl:', error);
     return 'Error executing curl';
