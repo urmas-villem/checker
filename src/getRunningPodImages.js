@@ -33,7 +33,6 @@ async function fetchLatestImageTag(command) {
 }
 
 async function fetchEOLDate(appName, version, eolUrl) {
-  console.log(`Fetching EOL date for ${appName} version ${version}`);
 
   if (!eolUrl) {
     return 'EOL URL not provided';

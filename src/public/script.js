@@ -1,16 +1,15 @@
-async function fetchAndDisplayPodImages() {
+export async function fetchAndDisplayPodImages(resetTimer = true) {
     document.getElementById('loadingMessage').style.display = 'block';
 
     try {
         const response = await fetch('/pod-images');
-        const data = await response.json();
+        const { data, lastUpdated } = await response.json();
 
         await new Promise(resolve => setTimeout(resolve, 500));
 
         const container = document.getElementById('podImagesContainer');
         container.innerHTML = '<h2>Images:</h2>';
 
-        // Create a table and add header row
         let table = '<table border="1"><tr>';
         table += '<th>Container name</th>';
         table += '<th>Image repository</th>';
@@ -20,7 +19,6 @@ async function fetchAndDisplayPodImages() {
         table += '<th>Notes</th>';
         table += '</tr>';
 
-        // Add data rows
         data.forEach(item => {
             const versionMismatch = item.imageVersionUsedInCluster !== item.newestImageAvailable;
             const versionCellClass = versionMismatch ? 'version-mismatch' : '';
@@ -50,6 +48,15 @@ async function fetchAndDisplayPodImages() {
         container.innerHTML += table;
 
         document.getElementById('loadingMessage').style.display = 'none';
+
+        const lastUpdatedDate = new Date(lastUpdated);
+        document.getElementById('lastUpdated').innerText = `Last Updated: ${lastUpdatedDate.toLocaleString()}`;
+
+        if (resetTimer) {
+            import('./polling.js').then(module => {
+                module.polling.startCountdownTimer(lastUpdated);
+            });
+        }
     } catch (error) {
         console.error('Error fetching pod images:', error);
         document.getElementById('loadingMessage').innerText = 'Failed to load pod images.';
@@ -79,6 +86,7 @@ function isDatePassed(eolDate) {
     const eol = new Date(eolDate);
     return today > eol;
 }
+
 function getTimeDifferenceMessage(eolDate) {
     if (!eolDate || isNaN(Date.parse(eolDate))) {
         return '';
@@ -95,10 +103,8 @@ function getTimeDifferenceMessage(eolDate) {
     const days = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
 
     if (timeDifference >= 0) {
-        // EOL Date is in the future
         return `(Ends in ${days} day${days !== 1 ? 's' : ''})`;
     } else {
-        // EOL Date has passed
         return `(Ended ${Math.abs(days)} day${Math.abs(days) !== 1 ? 's' : ''} ago)`;
     }
 }
